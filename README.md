@@ -11,7 +11,7 @@ Warcraft 1.12.1. Requires ClassicAPI.
 - **Save** stores your current talents in that slot and says which spec it replaces.
 - Each slot shows its talent split; hover a row for the full names.
 - **Edit** names the spec and picks its icon, from spell and item icons.
-- With [ActionBarProfiles](https://github.com/Fostercare5988/ActionBarProfiles)
+- With [FostercareBars](https://github.com/Fostercare5988/FostercareBars)
   installed, Edit can also link an action bar profile. It loads once the new
   talents are in place (after combat, if you are fighting). A profile you have
   since deleted shows as "Bars: missing".
