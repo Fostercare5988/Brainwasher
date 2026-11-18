@@ -1,5 +1,5 @@
 -- BrainwasherPro: named, iconed talent specs at the Goblin Brainwashing Device,
--- with an optional FostercareBars profile per spec. By Fostercare5988, based
+-- with an optional ActionBars profile per spec. By Fostercare5988, based
 -- on Horyoshi's original BrainwasherPro. Needs ClassicAPI (ClassicAPIRequirement.lua).
 local addonName, ns = ...
 if ns.unsupported then return end
@@ -109,17 +109,17 @@ local function BuildSplit(build)
     return Points(a), Points(b), Points(c)
 end
 
--- FostercareBars: its public table, GetProfileNames and LoadProfile ----------
+-- ActionBars: its public table, GetProfileNames and LoadProfile ----------
 
 local function BarsAvailable()
-    return type(FostercareBars) == "table" -- vanillaforge-ignore: K1
+    return type(ActionBars) == "table" -- vanillaforge-ignore: K1
 end
 
 local function ProfileNames()
-    return BarsAvailable() and FostercareBars.GetProfileNames() or nil -- vanillaforge-ignore: K1
+    return BarsAvailable() and ActionBars.GetProfileNames() or nil -- vanillaforge-ignore: K1
 end
 
--- false when FostercareBars no longer has the profile; nil when it cannot
+-- false when ActionBars no longer has the profile; nil when it cannot
 -- tell (not installed or not loaded).
 local function ProfileExists(profile, names)
     if not names then return nil end
@@ -157,7 +157,7 @@ local function FinishSwap(token)
         return
     end
     StopWatching()
-    if watch.profile then FostercareBars.LoadProfile(watch.profile) end -- vanillaforge-ignore: K1
+    if watch.profile then ActionBars.LoadProfile(watch.profile) end -- vanillaforge-ignore: K1
 end
 
 local function Settle()
@@ -415,7 +415,7 @@ local function ShowRowTooltip()
     if tip.active then GameTooltip:AddLine("Active now", 0.3, 1, 0.3) end
     if tip.split then GameTooltip:AddLine("Talents: " .. tip.split, 1, 1, 1) end
     if tip.missing then
-        GameTooltip:AddLine("Action bars: " .. tip.bars .. " (no longer in FostercareBars)", 1, 0.3, 0.3)
+        GameTooltip:AddLine("Action bars: " .. tip.bars .. " (no longer in ActionBars)", 1, 0.3, 0.3)
     else
         GameTooltip:AddLine("Action bars: " .. (tip.bars or "none"), 0.8, 0.8, 0.8)
     end
@@ -597,7 +597,7 @@ local function ShowBarsChoice()
     editFrame.bars:Show()
 end
 
--- Steps through None and every profile FostercareBars has for this character.
+-- Steps through None and every profile ActionBars has for this character.
 local function CycleBars(step)
     local names = ProfileNames() or {}
     local position = 0
@@ -680,7 +680,7 @@ function BrainwasherPro:CreateEditFrame()
         CycleBars(arg1 == "RightButton" and -1 or 1)
     end)
     editFrame.bars:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-    UI.Tooltip(editFrame.bars, "FostercareBars profile to load after this spec is activated. Click for the next, right-click for the previous.")
+    UI.Tooltip(editFrame.bars, "ActionBars profile to load after this spec is activated. Click for the next, right-click for the previous.")
 
     local confirm = UI.Button("BrainwasherProEditConfirm", editFrame, "Confirm", 0, 0, 148, ConfirmEdit, { font = "GameFontHighlight" })
     confirm:ClearAllPoints()
