@@ -1,11 +1,11 @@
--- BrainwasherPro: named, iconed talent specs at the Goblin Brainwashing Device,
--- with an optional ActionBars profile per spec. By Fostercare5988, based
--- on Horyoshi's original BrainwasherPro. Needs ClassicAPI (ClassicAPIRequirement.lua).
+-- Brainwasher: named, iconed talent specs at the Goblin Brainwashing Device,
+-- with an optional ActionBars profile per spec. By Fostercare5988.
+-- Needs ClassicAPI (ClassicAPIRequirement.lua).
 local addonName, ns = ...
 if ns.unsupported then return end
 local UI = ns.UI
 
-local BrainwasherPro = {}
+local Brainwasher = {}
 
 -- The device is recognised by its menu, not its name. Option texts read in
 -- play (2026-10-21):
@@ -41,18 +41,18 @@ local eventFrame = CreateFrame("Frame")
 local SWAP_EVENTS = { "CHARACTER_POINTS_CHANGED", "SPELLS_CHANGED", "PLAYER_REGEN_ENABLED" }
 
 local function Print(text)
-    DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00BrainwasherPro:|r " .. text)
+    DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00Brainwasher:|r " .. text)
 end
 
 local function Spec(slot)
-    return BrainwasherProDB.specs[slot]
+    return BrainwasherDB.specs[slot]
 end
 
 local function EnsureSpec(slot)
-    local spec = BrainwasherProDB.specs[slot]
+    local spec = BrainwasherDB.specs[slot]
     if not spec then
         spec = { name = "Spec " .. slot, icon = DEFAULT_ICON, t1 = 0, t2 = 0, t3 = 0 }
-        BrainwasherProDB.specs[slot] = spec
+        BrainwasherDB.specs[slot] = spec
     end
     return spec
 end
@@ -151,7 +151,7 @@ local function FinishSwap(token)
     local spec = EnsureSpec(watch.slot)
     spec.build = CurrentBuild()
     spec.t1, spec.t2, spec.t3 = GetTalentCounts()
-    BrainwasherProDB.current = watch.slot
+    BrainwasherDB.current = watch.slot
     if watch.profile and UnitAffectingCombat("player") then
         watch.afterCombat = true
         return
@@ -270,14 +270,14 @@ local function RestoreGossip()
     hiddenGossip = nil
 end
 
-function BrainwasherPro:EndGossipSession()
+function Brainwasher:EndGossipSession()
     menu = nil
     session = session + 1
     RestoreGossip()
-    StaticPopup_Hide("BRAINWASHERPRO_LOAD_SPEC")
-    StaticPopup_Hide("BRAINWASHERPRO_SAVE_SPEC")
-    StaticPopup_Hide("BRAINWASHERPRO_BUY_SLOT")
-    StaticPopup_Hide("BRAINWASHERPRO_RESET_TALENTS")
+    StaticPopup_Hide("BRAINWASHER_LOAD_SPEC")
+    StaticPopup_Hide("BRAINWASHER_SAVE_SPEC")
+    StaticPopup_Hide("BRAINWASHER_BUY_SLOT")
+    StaticPopup_Hide("BRAINWASHER_RESET_TALENTS")
 end
 
 -- Picks an option of the menu that was current when the action started.
@@ -324,7 +324,7 @@ end
 local function ActiveSlot()
     local build = CurrentBuild()
     local c1, c2, c3 = GetTalentCounts()
-    local current = BrainwasherProDB.current
+    local current = BrainwasherDB.current
     if current and menu.activate[current] and Holds(current, build, c1, c2, c3) then return current end
     local exact, exactCount, loose, looseCount = nil, 0, nil, 0
     for slot in pairs(menu.activate) do
@@ -345,11 +345,11 @@ end
 
 -- Actions ----------------------------------------------------------------------
 
-function BrainwasherPro:ActivateSlot(slot)
+function Brainwasher:ActivateSlot(slot)
     if not menu then return end
     local buy = menu.buy[slot]
     if buy then
-        Confirm("BRAINWASHERPRO_BUY_SLOT", buy.option, slot, buy.price, function(owner)
+        Confirm("BRAINWASHER_BUY_SLOT", buy.option, slot, buy.price, function(owner)
             Choose(buy.option, owner)
         end)
         return
@@ -357,7 +357,7 @@ function BrainwasherPro:ActivateSlot(slot)
     local option = menu.activate[slot]
     if not option then return end
     if ActiveSlot() == slot then return Print(SpecName(slot) .. " is already active.") end
-    Confirm("BRAINWASHERPRO_LOAD_SPEC", option, SpecName(slot), nil, function(owner)
+    Confirm("BRAINWASHER_LOAD_SPEC", option, SpecName(slot), nil, function(owner)
         if not Choose(option, owner) then return end
         local profile = Spec(slot) and Spec(slot).actionProfile
         if profile and ProfileExists(profile, ProfileNames()) == false then
@@ -370,25 +370,25 @@ function BrainwasherPro:ActivateSlot(slot)
     end)
 end
 
-function BrainwasherPro:SaveSlot(slot)
+function Brainwasher:SaveSlot(slot)
     local option = menu and menu.save[slot]
     if not option then return end
     local target = menu.activate[slot] and (SpecName(slot) .. ", replacing what it holds") or ("slot " .. slot)
-    Confirm("BRAINWASHERPRO_SAVE_SPEC", option, target, nil, function(owner)
+    Confirm("BRAINWASHER_SAVE_SPEC", option, target, nil, function(owner)
         if not Choose(option, owner) then return end
         local spec = EnsureSpec(slot)
         spec.t1, spec.t2, spec.t3 = GetTalentCounts()
         spec.build = CurrentBuild()
-        BrainwasherProDB.current = slot
-        BrainwasherPro:UpdateAllDisplays()
+        BrainwasherDB.current = slot
+        Brainwasher:UpdateAllDisplays()
     end)
 end
 
-function BrainwasherPro:ResetTalents()
+function Brainwasher:ResetTalents()
     local reset = menu and menu.reset
     if not reset then return end
     local price = reset.price and (" for " .. reset.price) or ""
-    Confirm("BRAINWASHERPRO_RESET_TALENTS", reset.option, price, nil, function(owner)
+    Confirm("BRAINWASHER_RESET_TALENTS", reset.option, price, nil, function(owner)
         Choose(reset.option, owner)
     end)
 end
@@ -466,7 +466,7 @@ local function UpdateRow(slot, active, names)
     row:Show()
 end
 
-function BrainwasherPro:UpdateAllDisplays()
+function Brainwasher:UpdateAllDisplays()
     if not (mainFrame and menu) then return end
     local active, names = ActiveSlot(), ProfileNames()
     for slot = 1, MAX_SLOTS do
@@ -482,7 +482,7 @@ function BrainwasherPro:UpdateAllDisplays()
 end
 
 local function CreateRow(slot)
-    local name = "BrainwasherProSlot" .. slot
+    local name = "BrainwasherSlot" .. slot
     local row = UI.Row(name, mainFrame, 28, -56 - (slot - 1) * 42, 304)
     row:SetHeight(36)
     -- Hovering the row shows the full name and action bar profile.
@@ -490,12 +490,12 @@ local function CreateRow(slot)
     row:SetScript("OnEnter", ShowRowTooltip)
     row:SetScript("OnLeave", UI.HideTooltip)
 
-    local iconButton = CreateFrame("Button", "BrainwasherProIcon" .. slot, row)
+    local iconButton = CreateFrame("Button", "BrainwasherIcon" .. slot, row)
     iconButton:SetWidth(28); iconButton:SetHeight(28)
     iconButton:SetPoint("LEFT", row, "LEFT", 4, 0)
     iconButton:RegisterForClicks("LeftButtonUp")
     iconButton:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
-    iconButton:SetScript("OnClick", function() BrainwasherPro:ActivateSlot(slot) end)
+    iconButton:SetScript("OnClick", function() Brainwasher:ActivateSlot(slot) end)
     UI.Tooltip(iconButton, "Click to activate this spec, or buy the slot.")
     row.icon = iconButton:CreateTexture(nil, "ARTWORK")
     row.icon:SetAllPoints(iconButton)
@@ -515,41 +515,41 @@ local function CreateRow(slot)
     row.summary:SetJustifyH("LEFT")
     UI.Color(row.summary, "hint")
 
-    row.save = UI.Button(name .. "Save", row, "Save", 0, 0, 48, function() BrainwasherPro:SaveSlot(slot) end, { height = 20 })
+    row.save = UI.Button(name .. "Save", row, "Save", 0, 0, 48, function() Brainwasher:SaveSlot(slot) end, { height = 20 })
     row.save:ClearAllPoints()
     row.save:SetPoint("RIGHT", row, "RIGHT", -4, 0)
-    row.edit = UI.Button(name .. "Edit", row, "Edit", 0, 0, 48, function() BrainwasherPro:OnEditClicked(slot) end, { height = 20 })
+    row.edit = UI.Button(name .. "Edit", row, "Edit", 0, 0, 48, function() Brainwasher:OnEditClicked(slot) end, { height = 20 })
     row.edit:ClearAllPoints()
     row.edit:SetPoint("RIGHT", row.save, "LEFT", -6, 0)
 
     rows[slot] = row
 end
 
-function BrainwasherPro:CreateMainFrame()
+function Brainwasher:CreateMainFrame()
     if mainFrame then return end
-    mainFrame = UI.Window("BrainwasherProFrame", "Brainwasher Pro", 360, 280, GetAddOnMetadata(addonName, "Version"))
+    mainFrame = UI.Window("BrainwasherFrame", "Brainwasher", 360, 280, GetAddOnMetadata(addonName, "Version"))
     for slot = 1, MAX_SLOTS do CreateRow(slot); rows[slot]:Hide() end
 
-    mainFrame.reset = UI.Button("BrainwasherProReset", mainFrame, "Reset talents", 0, 0, 148, function()
-        BrainwasherPro:ResetTalents()
+    mainFrame.reset = UI.Button("BrainwasherReset", mainFrame, "Reset talents", 0, 0, 148, function()
+        Brainwasher:ResetTalents()
     end, { font = "GameFontHighlight" })
     mainFrame.reset:ClearAllPoints()
     mainFrame.reset:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 28, 18)
-    local original = UI.Button("BrainwasherProOriginal", mainFrame, "Show original", 0, 0, 148, function()
+    local original = UI.Button("BrainwasherOriginal", mainFrame, "Show original", 0, 0, 148, function()
         mainFrame:Hide()
     end, { font = "GameFontHighlight" })
     original:ClearAllPoints()
     original:SetPoint("BOTTOMRIGHT", mainFrame, "BOTTOMRIGHT", -28, 18)
     UI.Tooltip(original, "Show the device's own menu.")
 
-    -- The close glyph (UI.Window's BrainwasherProFrameClose) also ends the
+    -- The close glyph (UI.Window's BrainwasherFrameClose) also ends the
     -- conversation; Escape and Show original only bring the device's own menu back.
-    BrainwasherProFrameClose:SetScript("OnClick", function()
+    BrainwasherFrameClose:SetScript("OnClick", function()
         mainFrame:Hide()
         CloseGossip()
     end)
     mainFrame:SetScript("OnHide", function()
-        BrainwasherPro:EndGossipSession()
+        Brainwasher:EndGossipSession()
         if editFrame then editFrame:Hide() end
     end)
 end
@@ -616,19 +616,19 @@ local function ConfirmEdit()
     spec.icon = editIcon
     spec.actionProfile = editProfile
     editFrame:Hide()
-    BrainwasherPro:UpdateAllDisplays()
+    Brainwasher:UpdateAllDisplays()
 end
 
-function BrainwasherPro:CreateEditFrame()
+function Brainwasher:CreateEditFrame()
     if editFrame then return end
-    editFrame = UI.Window("BrainwasherProEditFrame", "Edit talent spec", 360, 432)
+    editFrame = UI.Window("BrainwasherEditFrame", "Edit talent spec", 360, 432)
 
     UI.Heading(editFrame, "Name", 28, -56)
     editFrame.preview = editFrame:CreateTexture(nil, "OVERLAY")
     editFrame.preview:SetWidth(28); editFrame.preview:SetHeight(28)
     editFrame.preview:SetPoint("TOPLEFT", editFrame, "TOPLEFT", 28, -72)
 
-    local nameEdit = CreateFrame("EditBox", "BrainwasherProEditName", editFrame)
+    local nameEdit = CreateFrame("EditBox", "BrainwasherEditName", editFrame)
     nameEdit:SetWidth(260); nameEdit:SetHeight(24)
     nameEdit:SetPoint("LEFT", editFrame.preview, "RIGHT", 10, 0)
     nameEdit:SetFontObject(GameFontHighlight)
@@ -666,34 +666,34 @@ function BrainwasherPro:CreateEditFrame()
     end
 
     local y = -128 - ICON_ROWS * 38 - 6
-    UI.Button("BrainwasherProEditPrev", editFrame, "<", 28, y, 36, function()
+    UI.Button("BrainwasherEditPrev", editFrame, "<", 28, y, 36, function()
         iconPage = iconPage - 1; ShowIconPage()
     end)
     editFrame.page = UI.Label(editFrame, "", 74, y - 5, "GameFontHighlightSmall")
     editFrame.page:SetWidth(76)
     editFrame.page:SetJustifyH("CENTER")
-    UI.Button("BrainwasherProEditNext", editFrame, ">", 160, y, 36, function()
+    UI.Button("BrainwasherEditNext", editFrame, ">", 160, y, 36, function()
         iconPage = iconPage + 1; ShowIconPage()
     end)
 
-    editFrame.bars = UI.Button("BrainwasherProEditBars", editFrame, "", 28, y - 34, 304, function()
+    editFrame.bars = UI.Button("BrainwasherEditBars", editFrame, "", 28, y - 34, 304, function()
         CycleBars(arg1 == "RightButton" and -1 or 1)
     end)
     editFrame.bars:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     UI.Tooltip(editFrame.bars, "ActionBars profile to load after this spec is activated. Click for the next, right-click for the previous.")
 
-    local confirm = UI.Button("BrainwasherProEditConfirm", editFrame, "Confirm", 0, 0, 148, ConfirmEdit, { font = "GameFontHighlight" })
+    local confirm = UI.Button("BrainwasherEditConfirm", editFrame, "Confirm", 0, 0, 148, ConfirmEdit, { font = "GameFontHighlight" })
     confirm:ClearAllPoints()
     confirm:SetPoint("BOTTOMLEFT", editFrame, "BOTTOMLEFT", 28, 18)
     UI.Select(confirm, true)
-    local cancel = UI.Button("BrainwasherProEditCancel", editFrame, "Cancel", 0, 0, 148, function()
+    local cancel = UI.Button("BrainwasherEditCancel", editFrame, "Cancel", 0, 0, 148, function()
         editFrame:Hide()
     end, { font = "GameFontHighlight" })
     cancel:ClearAllPoints()
     cancel:SetPoint("BOTTOMRIGHT", editFrame, "BOTTOMRIGHT", -28, 18)
 end
 
-function BrainwasherPro:OnEditClicked(slot)
+function Brainwasher:OnEditClicked(slot)
     self:CreateEditFrame()
     local spec = EnsureSpec(slot)
     editSlot, editIcon, editProfile = slot, spec.icon or DEFAULT_ICON, spec.actionProfile
@@ -706,7 +706,7 @@ end
 
 -- Gossip events ----------------------------------------------------------------
 
-function BrainwasherPro:OnGossipShow()
+function Brainwasher:OnGossipShow()
     self:OnGossipClosed()
     local found = ReadMenu()
     if not found then return end
@@ -718,7 +718,7 @@ function BrainwasherPro:OnGossipShow()
     self:UpdateAllDisplays()
 end
 
-function BrainwasherPro:OnGossipClosed()
+function Brainwasher:OnGossipClosed()
     if mainFrame and mainFrame:IsShown() then
         mainFrame:Hide()
     else
@@ -739,10 +739,10 @@ local function Popup(text)
         hideOnEscape = 1,
     }
 end
-StaticPopupDialogs["BRAINWASHERPRO_LOAD_SPEC"] = Popup("Activate %s? This causes a brainwasher debuff.")
-StaticPopupDialogs["BRAINWASHERPRO_SAVE_SPEC"] = Popup("Save your current talents to %s?")
-StaticPopupDialogs["BRAINWASHERPRO_BUY_SLOT"] = Popup("Buy talent slot %s for %s gold?")
-StaticPopupDialogs["BRAINWASHERPRO_RESET_TALENTS"] = Popup("Reset all your talents%s? This causes a debuff.")
+StaticPopupDialogs["BRAINWASHER_LOAD_SPEC"] = Popup("Activate %s? This causes a brainwasher debuff.")
+StaticPopupDialogs["BRAINWASHER_SAVE_SPEC"] = Popup("Save your current talents to %s?")
+StaticPopupDialogs["BRAINWASHER_BUY_SLOT"] = Popup("Buy talent slot %s for %s gold?")
+StaticPopupDialogs["BRAINWASHER_RESET_TALENTS"] = Popup("Reset all your talents%s? This causes a debuff.")
 
 -- Events -----------------------------------------------------------------------
 
@@ -752,26 +752,26 @@ eventFrame:RegisterEvent("GOSSIP_CLOSED")
 
 eventFrame:SetScript("OnEvent", function()
     if event == "GOSSIP_SHOW" then
-        BrainwasherPro:OnGossipShow()
+        Brainwasher:OnGossipShow()
     elseif event == "GOSSIP_CLOSED" then
-        BrainwasherPro:OnGossipClosed()
+        Brainwasher:OnGossipClosed()
     elseif event == "CHARACTER_POINTS_CHANGED" or event == "SPELLS_CHANGED" then
         OnSwapEvent(event == "CHARACTER_POINTS_CHANGED")
     elseif event == "PLAYER_REGEN_ENABLED" then
         if swap and swap.afterCombat then FinishSwap(swap.token) end
     elseif event == "ADDON_LOADED" and arg1 == addonName then
         eventFrame:UnregisterEvent("ADDON_LOADED")
-        BrainwasherProDB = BrainwasherProDB or {} -- vanillaforge-ignore: D2 (once, on load)
-        BrainwasherProDB.specs = BrainwasherProDB.specs or {} -- vanillaforge-ignore: D2 (once, on load)
+        BrainwasherDB = BrainwasherDB or {} -- vanillaforge-ignore: D2 (once, on load)
+        BrainwasherDB.specs = BrainwasherDB.specs or {} -- vanillaforge-ignore: D2 (once, on load)
     end
 end)
 
--- Game Menu > AddOn Options > BrainwasherPro (ClassicAPI).
-local entry = CreateFrame("Frame", "BrainwasherProOptionsEntry")
-entry.name = "BrainwasherPro"
+-- Game Menu > AddOn Options > Brainwasher (ClassicAPI).
+local entry = CreateFrame("Frame", "BrainwasherOptionsEntry")
+entry.name = "Brainwasher"
 local entryTitle = entry:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 entryTitle:SetPoint("TOPLEFT", entry, "TOPLEFT", 16, -16)
-entryTitle:SetText("BrainwasherPro")
+entryTitle:SetText("Brainwasher")
 local entryText = entry:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 entryText:SetPoint("TOPLEFT", entryTitle, "BOTTOMLEFT", 0, -8)
 entryText:SetWidth(380)

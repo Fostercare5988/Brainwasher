@@ -1,9 +1,9 @@
-# Brainwasher Pro
+# Brainwasher
 
 A clean window for the Goblin Brainwashing Device's talent specs, for World of
 Warcraft 1.12.1. Requires [ClassicAPI](https://github.com/brues-code/ClassicAPI).
 
-- Talk to the device and Brainwasher Pro replaces its menu: one row per talent slot.
+- Talk to the device and Brainwasher replaces its menu: one row per talent slot.
 - Click a spec's icon to activate it; buying a slot or resetting talents asks first.
 - The spec you are in now is marked **Active**, so you never swap to it by accident.
   Two specs with the same talent split are told apart by their talents once
@@ -19,9 +19,5 @@ Warcraft 1.12.1. Requires [ClassicAPI](https://github.com/brues-code/ClassicAPI)
 
 ## Install
 
-Download `BrainwasherPro.zip` from the [latest release](https://github.com/Fostercare5988/BrainwasherPro/releases/latest) and extract it into
+Download `Brainwasher.zip` from the [latest release](https://github.com/Fostercare5988/Brainwasher/releases/latest) and extract it into
 `Interface/AddOns`.
-
-## Credits
-
-Based on BrainwasherPro by **Horyoshi**. Modernized and maintained by Fostercare5988.

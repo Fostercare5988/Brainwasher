@@ -1,0 +1,13 @@
+## X-Website: https://github.com/Fostercare5988/Brainwasher
+## X-Maintainer: Fostercare5988
+## Interface: 11200
+## OptionalDeps: ActionBars
+## Title: |cffff9e38Brainwasher|r |cffffd6a8[Fostercare5988]|r
+## Notes: Named, iconed talent specs at the Goblin Brainwashing Device, with optional ActionBars switching. Requires ClassicAPI.
+## Author: Fostercare5988
+## Version: 1.1.1
+## SavedVariablesPerCharacter: BrainwasherDB
+
+ClassicAPIRequirement.lua
+ForgeUI.lua
+Brainwasher.lua

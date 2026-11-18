@@ -1,4 +1,4 @@
--- Enforce VanillaForge's shared ClassicAPI support floor. BrainwasherPro.lua
+-- Enforce VanillaForge's shared ClassicAPI support floor. Brainwasher.lua
 -- checks ns.unsupported and stays inert when this guard fails.
 local addonName, ns = ...
 if type(CLASSIC_API_VERSION) ~= "number" then
