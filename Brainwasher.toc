@@ -1,0 +1,11 @@
+## Interface: 11200
+## Title: |cffff9e38Brainwasher|r |cffffd6a8[Fostercare5988]|r
+## Notes: Named, iconed talent specs at the Goblin Brainwashing Device, with an action bar profile for each
+## Author: Fostercare5988
+## X-Maintainer: Fostercare5988
+## Version: 1.0.0
+## OptionalDeps: ActionBars
+## SavedVariablesPerCharacter: BrainwasherDB
+## LoadSavedVariablesFirst: 1
+Device.lua
+Panel.lua
